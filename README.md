@@ -341,7 +341,7 @@ wine_trn = wine_data[-wine_idx, ]
 wine_tst = wine_data[wine_idx, ]
 ```
 
-# Variable Selection, Model Building and Model Diagnostics
+## Variable Selection, Model Building and Model Diagnostics
 
 A Step-by-step decision making process throughout the analysis.
 
@@ -349,6 +349,9 @@ A Step-by-step decision making process throughout the analysis.
 
 Using the dataset, an additive model with quality as a response and all
 other variables is fit using linear regression.
+
+We check the Adjusted R-Squared *R*<sup>2</sup> and LOOCV-RMSE of this
+model.
 
 ``` r
 wine_all = lm(quality ~ ., data = wine_trn)
@@ -363,8 +366,8 @@ calc_adj_r2(wine_all)
 
     ## [1] 0.2941
 
-We check the Adjusted R-Squared *R*<sup>2</sup> and LOOCV-RMSE of this
-model.
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the additive model
+is 0.2941 and the LOOCV-RMSE is 0.7333 .
 
 ``` r
 par(mfrow = c(1, 2))
@@ -372,7 +375,7 @@ plot_fitted_resid(wine_all)
 plot_qq(wine_all) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 On the fitted versus residuals plot, we see two things very clearly. For
 any fitted value, the residuals seem roughly centered at 0. This is
@@ -406,7 +409,7 @@ form considered by the Box-Cox method.
 boxcox(wine_all, plotit = TRUE, lambda = seq(0.45, 1, by = 0.05))
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-11-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 Using the Box-Cox method, we see that *λ* = 0.76 = 0.76 is both in the
 confidence interval, and is extremely close to the maximum, which
@@ -431,19 +434,22 @@ calc_adj_r2(wine_all_cox)
 
     ## [1] 0.2929
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the transformed
+model is 0.2929 and the LOOCV-RMSE is 0.4813 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_all_cox)
 plot_qq(wine_all_cox)
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 ### Collinearity
 
-We investigate how the presence of collinearity actually affects the
-model. The variance inflation factor quantifies the effect of
-collinearity on the variance of our regression estimates.
+To prevent over-fitting, We investigate how the presence of collinearity
+actually affects the model. The variance inflation factor quantifies the
+effect of collinearity on the variance of our regression estimates.
 
 ``` r
 vif(wine_all_cox)
@@ -482,13 +488,16 @@ calc_adj_r2(wine_sml)
 
     ## [1] 0.2732
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the small additive
+model is 0.2732 and the LOOCV-RMSE is 0.4879 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_sml)
 plot_qq(wine_sml) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
 We check how many observations have “high” leverage. A common heuristic
 would be to compare each leverage to two times the average leverage. A
@@ -558,13 +567,17 @@ calc_adj_r2(wine_sml_fix)
 
     ## [1] 0.3496
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the small additive
+model without influential points is 0.3496 and the LOOCV-RMSE is 0.4166
+.
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_sml_fix)
 plot_qq(wine_sml_fix) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 We see that the adjusted r-squared increased, the LOOCV-RMSE test change
 significantly and the Q-Q plot improved, such that normality of the data
@@ -607,13 +620,16 @@ calc_bp_decision(wine_back_bic, alpha = 0.01)
 
     ## [1] "Reject"
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the select model
+is 0.3496 and the LOOCV-RMSE is 0.4166 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_back_bic)
 plot_qq(wine_back_bic) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-23-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
 Using the chosen model from BIC backwards step model selection, we see
 that the result did not change much while the number of model predictors
@@ -639,13 +655,16 @@ calc_adj_r2(wine_log)
 
     ## [1] 0.2916
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the select model
+with log predictors is 0.2916 and the LOOCV-RMSE is 0.4815 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_log)
 plot_qq(wine_log) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-25-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-24-1.png)
 
 ``` r
 cd_wine = cooks.distance(wine_log)
@@ -654,8 +673,8 @@ sum(cd_wine > 4 / length(cd_wine))
 
     ## [1] 927
 
-We find `sum(cd_wine > 4 / length(cd_wine))` influential points We
-remove the influential points and fit the model again.
+We find 927 influential points We remove the influential points and fit
+the model again.
 
 ``` r
 wine_log_fix = lm((((quality ^ 0.76) - 1) / 0.76) ~ `volatile acidity` +  chlorides + log(`free sulfur dioxide`) + log(`total sulfur dioxide`) + pH + sulphates + alcohol, data = wine_trn, subset = cd_wine <= 4 / length(cd_wine))
@@ -672,13 +691,16 @@ calc_adj_r2(wine_log_fix)
 
     ## [1] 0.3701
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the select model
+without influential points is 0.3701 and the LOOCV-RMSE is 0.4103 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_log_fix)
 plot_qq(wine_log_fix) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-28-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-27-1.png)
 
 ### Interaction terms
 
@@ -699,13 +721,16 @@ calc_adj_r2(wine_two)
 
     ## [1] 0.322
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the two-way
+interaction model is 0.322 and the LOOCV-RMSE is 0.4723 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_two)
 plot_qq(wine_two) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-30-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-29-1.png)
 
 ### BIC Backward Model Selection
 
@@ -756,6 +781,9 @@ calc_adj_r2(wine_back_bic2)
 
     ## [1] 0.3216
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the select model
+is 0.3216 and the LOOCV-RMSE is 0.4721 .
+
 ``` r
 cd_wine = cooks.distance(wine_back_bic2)
 sum(cd_wine > 4 / length(cd_wine))
@@ -763,8 +791,8 @@ sum(cd_wine > 4 / length(cd_wine))
 
     ## [1] 763
 
-We find `sum(cd_wine > 4 / length(cd_wine))` influential points We
-remove the influential points and fit the model again.
+We find 763 influential points We remove the influential points and fit
+the model again.
 
 ``` r
 wine_two_fix = lm((((quality ^ 0.76) - 1) / 0.76) ~ `volatile acidity` + chlorides + `free sulfur dioxide` + `total sulfur dioxide` + pH + sulphates + alcohol + I(`volatile acidity`^2) + I(`free sulfur dioxide`^2) + I(pH^2) + I(alcohol^2) + `volatile acidity`:chlorides + `volatile acidity`:`free sulfur dioxide` + `volatile acidity`:alcohol + chlorides:`total sulfur dioxide`+ chlorides:pH + chlorides:sulphates + chlorides:alcohol + `free sulfur dioxide`:pH + `free sulfur dioxide`:sulphates + `free sulfur dioxide`:alcohol + `total sulfur dioxide`:pH + `total sulfur dioxide`:sulphates + pH:alcohol, data = wine_trn, subset = cd_wine <= 4 / length(cd_wine))
@@ -781,13 +809,16 @@ calc_adj_r2(wine_two_fix)
 
     ## [1] 0.3815
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the select model
+without influential points is 0.3815 and the LOOCV-RMSE is 0.418 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_two_fix)
 plot_qq(wine_two_fix) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-34-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-33-1.png)
 
 ### Big Model
 
@@ -810,13 +841,16 @@ calc_adj_r2(wine_big)
 
     ## [1] 0.3329
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the big model is
+0.3329 and the LOOCV-RMSE is 0.4678 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_big)
 plot_qq(wine_big) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-36-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-35-1.png)
 
 ``` r
 cd_wine = cooks.distance(wine_big)
@@ -825,8 +859,8 @@ sum(cd_wine > 4 / length(cd_wine))
 
     ## [1] 813
 
-We find `sum(cd_wine > 4 / length(cd_wine))` influential points We
-remove the influential points and fit the model again.
+We find 813 influential points We remove the influential points and fit
+the model again.
 
 ``` r
 wine_big_fix = lm((((quality ^ 0.76) - 1) / 0.76) ~ `volatile acidity` + chlorides + `free sulfur dioxide` + `total sulfur dioxide` + pH + sulphates + alcohol + I(`volatile acidity`^2) + I(`free sulfur dioxide`^2) + I(pH^2) + I(alcohol^2) + `volatile acidity`:chlorides + `volatile acidity`:`free sulfur dioxide` + `volatile acidity`:alcohol + chlorides:`total sulfur dioxide`+ chlorides:pH + chlorides:sulphates + chlorides:alcohol + `free sulfur dioxide`:pH + `free sulfur dioxide`:sulphates + `free sulfur dioxide`:alcohol + `total sulfur dioxide`:pH + `total sulfur dioxide`:sulphates + pH:alcohol, data = wine_trn, subset = cd_wine <= 4 / length(cd_wine))
@@ -843,13 +877,16 @@ calc_adj_r2(wine_big_fix)
 
     ## [1] 0.3829
 
+We see the The *R*<sub>*a**d**j*</sub><sup>2</sup> of the big model
+without influential points is 0.3829 and the LOOCV-RMSE is 0.4162 .
+
 ``` r
 par(mfrow = c(1, 2))
 plot_fitted_resid(wine_big_fix)
 plot_qq(wine_big_fix) 
 ```
 
-![](WineQuality_files/figure-markdown_github/unnamed-chunk-39-1.png)
+![](WineQuality_files/figure-markdown_github/unnamed-chunk-38-1.png)
 
 ### Anova Test
 
@@ -981,7 +1018,7 @@ useful for prediction.
 
 ### Reference Level
 
-We Verify that type is a factor, and check the level of `Type`.
+We verify that type is a factor, and check the level of `Type`.
 
 ``` r
 is.factor(wine_data$Type)
@@ -1010,22 +1047,22 @@ wine_tst = wine_data[wine_idx, ]
 
 ### logistic regression
 
-We’ll fit five logistic regressions, each more complex than the
-previous.
+We fit five logistic regressions, each more complex than the previous.
 
-We fit an additive model using variables `volatile acidity`, chlorides,
-`free sulfur dioxide`, `total sulfur dioxide`, pH, sulphates, alcohol.
+-   an additive model using variables `volatile acidity`, chlorides,
+    `free sulfur dioxide`, `total sulfur dioxide`, pH, sulphates,
+    alcohol.
 
-we fit an additive model with log transformed predictor
-log(`free sulfur dioxide`) + log(`total sulfur dioxide`)
+-   fit an additive model with log transformed predictor
+    log(`free sulfur dioxide`) + log(`total sulfur dioxide`)
 
-We fit an additive model using all available predictors
+-   fit an additive model using all available predictors
 
-We fit a two-way Interaction model using all available predictors
+-   fit a two-way Interaction model using all available predictors
 
-We fit a two-way Interaction model using all available predictors, and
-perform variable selection using BIC with a backwards selection
-procedure.
+-   fit a two-way Interaction model using all available predictors, and
+    perform variable selection using BIC with a backwards selection
+    procedure.
 
 ``` r
 wine_add1 = glm(Type ~  `volatile acidity` + chlorides + `free sulfur dioxide` + `total sulfur dioxide` + pH + sulphates + alcohol, data = wine_trn, family = binomial)
@@ -1041,8 +1078,9 @@ wine_back_bic = step(wine_two, direction = "backward", k = log(length(resid(wine
 
 ### Deviance
 
-deviance is a generalized residual sum of squares for GLMs. Like RSS,
-deviance decreases as the model complexity increases.
+We check the deviance of models. Deviance is a generalized residual sum
+of squares for GLMs. Like RSS, deviance decreases as the model
+complexity increases.
 
 ``` r
 deviance(wine_add1)
